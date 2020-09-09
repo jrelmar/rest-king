@@ -1,0 +1,9 @@
+1. General overview of REST
+2. REST constraints
+3. Richardson maturity principle
+4. Best practices ....
+    1. Better URI
+    2. Better use of HTTP status codes and VERBS
+    3. Error and response handling
+    4. Versioning
+5. HATEOAS
