@@ -1,20 +1,37 @@
 1. Data transfer format
-    1. There are other ways to transfer data. XML isn’t widely supported by frameworks without transforming the data ourselves to something that can be used, and that’s usually JSON. We can’t manipulate this data as easily on the client-side, especially in browsers. It ends up being a lot of extra work just to do normal data transfer.
+    1. There are other ways to transfer data. XML isn’t widely supported by frameworks without transforming the data
+    ourselves to something that can be used, and that’s usually JSON. We can’t manipulate this data as easily on the client-side, especially in browsers.
+     It ends up being a lot of extra work just to do normal data transfer.
     2. To make sure that when our REST API app responds with JSON that clients interpret it as such, we should set Content-Type in the response header to application/json after the request is made. Many server-side app frameworks set the response header automatically. Some HTTP clients look at the Content-Type response header and parse the data according to that format.
 
 2. Practices for URI
-    1. We shouldn’t use verbs in our endpoint paths. Instead, we should use the nouns which represent the entity that the endpoint that we’re retrieving or manipulating as the pathname.
-    2. This is because our HTTP request method already has the verb. Having verbs in our API endpoint paths isn’t useful and it makes it unnecessarily long since it doesn’t convey any new information. The chosen verbs could vary by the developer’s whim. For instance, some like ‘get’ and some like ‘retrieve’, so it’s just better to let the HTTP GET verb tell us what and endpoint does.
+    1. We shouldn’t use verbs in our endpoint paths. Instead, we should use the nouns which represent the entity that the
+    endpoint that we’re retrieving or manipulating as the pathname.
+    2. This is because our HTTP request method already has the verb. Having verbs in our API endpoint paths isn’t useful
+    and it makes it unnecessarily long since it doesn’t convey any new information. The chosen verbs could vary by the developer’s whim.
+     For instance, some like ‘get’ and some like ‘retrieve’, so it’s just better to let the HTTP GET verb tell us what and endpoint does.
     3. The action should be indicated by the HTTP request method that we’re making. The most common methods include GET, POST, PUT, and DELETE.
-    4. The path of the endpoints that deal with nested resources should be done by appending the nested resource as the name of the path that comes after the parent resource.
-    5. We have to make sure that it makes sure what we considered a nested resources matches what we have in our database tables. Otherwise, it’ll be confusing.
-    6. For instance, if we want an endpoint to get the comments for a news article, we should append the /comments path to the end of the /articles path. This is assuming that we have comments as a child of an article in our database.
-    7. In the code above, we can use the GET method on the path '/articles/:articleId/comments'. We get comments on the article identified by articleId and then return it in the response. We add 'comments' after the '/articles/:articleId' path segment to indicate that it’s a child resource of /articles.
-    8. This makes sense since comments are the children objects of the articles, assuming each article has its own comments. Otherwise, it’s confusing to the user since this structure is generally accepted to be for accessing child objects. The same principle also applies to the POST, PUT, and DELETE endpoints. They can all use the same kind of nesting structure for the path names.
-    9. The key principles of REST involve separating your API into logical resources. These resources are manipulated using HTTP requests where the method (GET, POST, PUT, PATCH, DELETE) has specific meaning.
-    10. But what can I make a resource? Well, these should be nouns that make sense from the perspective of the API consumer, not verbs. To be clear: a noun is a thing, a verb is what you do to it. Some of Enchant's nouns would be ticket, user and customer.
-    11. Watch out though: Although your internal models may map neatly to resources, it isn't necessarily a one-to-one mapping. The key here is to not leak irrelevant implementation details out to your API! Your API resources need to make sense from the perspective of the API consumer.
-    12. Once you have your resources defined, you need to identify what actions apply to them and how those would map to your API. RESTful principles provide strategies to handle CRUD actions using HTTP methods mapped as follows:
+    4. The path of the endpoints that deal with nested resources should be done by appending the nested resource as the name of the path that
+    comes after the parent resource.
+    5. We have to make sure that it makes sure what we considered a nested resources matches what we have in our database tables. Otherwise,
+     it’ll be confusing.
+    6. For instance, if we want an endpoint to get the comments for a news article, we should append the /comments path to the end of the
+    /articles path. This is assuming that we have comments as a child of an article in our database.
+    7. In the code above, we can use the GET method on the path '/articles/:articleId/comments'. We get comments on the article identified
+    by articleId and then return it in the response. We add 'comments' after the '/articles/:articleId' path segment to indicate that it’s
+    a child resource of /articles.
+    8. This makes sense since comments are the children objects of the articles, assuming each article has its own comments. Otherwise,
+    it’s confusing to the user since this structure is generally accepted to be for accessing child objects. The same principle also
+    applies to the POST, PUT, and DELETE endpoints. They can all use the same kind of nesting structure for the path names.
+    9. The key principles of REST involve separating your API into logical resources. These resources are manipulated using HTTP requests
+    where the method (GET, POST, PUT, PATCH, DELETE) has specific meaning.
+    10. But what can I make a resource? Well, these should be nouns that make sense from the perspective of the API consumer, not verbs.
+    To be clear: a noun is a thing, a verb is what you do to it. Some of Enchant's nouns would be ticket, user and customer.
+    11. Watch out though: Although your internal models may map neatly to resources, it isn't necessarily a one-to-one mapping.
+    The key here is to not leak irrelevant implementation details out to your API! Your API resources need to make sense from the
+    perspective of the API consumer.
+    12. Once you have your resources defined, you need to identify what actions apply to them and how those would map to your API.
+     RESTful principles provide strategies to handle CRUD actions using HTTP methods mapped as follows:
 
         GET /tickets - Retrieves a list of tickets
         GET /tickets/12 - Retrieves a specific ticket
@@ -22,53 +39,90 @@
         PUT /tickets/12 - Updates ticket #12
         PATCH /tickets/12 - Partially updates ticket #12
         DELETE /tickets/12 - Deletes ticket #12
-    13. The great thing about REST is that you're leveraging existing HTTP methods to implement significant functionality on just a single /tickets endpoint. There are no method naming conventions to follow and the URL structure is clean & clear. REST FTW!
-    14. Should the endpoint name be singular or plural? The keep-it-simple rule applies here. Although your inner-grammatician will tell you it's wrong to describe a single instance of a resource using a plural, the pragmatic answer is to keep the URL format consistent and always use a plural. Not having to deal with odd pluralization (person/people, goose/geese) makes the life of the API consumer better and is easier for the API provider to implement (as most modern frameworks will natively handle /tickets and /tickets/12 under a common controller).
-    15. But how do you deal with relations? If a relation can only exist within another resource, RESTful principles provide useful guidance. Let's look at this with an example. A ticket in Enchant consists of a number of messages. These messages can be logically mapped to the /tickets endpoint as follows:
+    13. The great thing about REST is that you're leveraging existing HTTP methods to implement significant functionality
+    on just a single /tickets endpoint. There are no method naming conventions to follow and the URL structure is clean & clear. REST FTW!
+    14. Should the endpoint name be singular or plural? The keep-it-simple rule applies here. Although your inner-grammatician
+    will tell you it's wrong to describe a single instance of a resource using a plural, the pragmatic answer is to keep the URL
+     format consistent and always use a plural. Not having to deal with odd pluralization (person/people, goose/geese) makes the
+     life of the API consumer better and is easier for the API provider to implement (as most modern frameworks will natively
+     handle /tickets and /tickets/12 under a common controller).
+    15. But how do you deal with relations? If a relation can only exist within another resource, RESTful principles provide useful guidance.
+     Let's look at this with an example. A ticket in Enchant consists of a number of messages. These messages can be logically mapped
+     to the /tickets endpoint as follows:
     16. GET /tickets/12/messages - Retrieves list of messages for ticket #12
         GET /tickets/12/messages/5 - Retrieves message #5 for ticket #12
         POST /tickets/12/messages - Creates a new message in ticket #12
         PUT /tickets/12/messages/5 - Updates message #5 for ticket #12
         PATCH /tickets/12/messages/5 - Partially updates message #5 for ticket #12
         DELETE /tickets/12/messages/5 - Deletes message #5 for ticket #12
-    17. Alternative 1: If a relation can exist independently of the resource, it makes sense to just include an identifier for it within the output representation of the resource. The API consumer would then have to hit the relation's endpoint.
-    18. Alternative 2: If an independently existing relation is commonly requested alongside the resource, then the API could offer functionality to automatically embed the relation's representation and avoid the second hit to the API. Clean API and one hit to the server. I like this approach.
+    17. Alternative 1: If a relation can exist independently of the resource, it makes sense to just include an identifier for it
+    within the output representation of the resource. The API consumer would then have to hit the relation's endpoint.
+    18. Alternative 2: If an independently existing relation is commonly requested alongside the resource, then the API could offer
+    functionality to automatically embed the relation's representation and avoid the second hit to the API. Clean API and one hit to the server.
+    I like this approach.
     19. What about actions that don't fit into the world of CRUD operations?
 
         This is where things can get fuzzy. There are a number of approaches:
 
-        Restructure the action to appear like a field of a resource. This works if the action doesn't take parameters. For example an activate action could be mapped to a boolean activated field and updated via a PATCH to the resource.
-        Treat it like a sub-resource with RESTful principles. For example, GitHub's API lets you star a gist with PUT /gists/:id/star and unstar with DELETE /gists/:id/star.
-        Sometimes you really have no way to map the action to a sensible RESTful structure. For example, a multi-resource search doesn't really make sense to be applied to a specific resource's endpoint. In this case, /search would make the most sense even though it isn't a resource. This is OK - just do what's right from the perspective of the API consumer and make sure it's documented clearly to avoid confusion.
-    20. It's best to keep the base resource URLs as lean as possible. Complex result filters, sorting requirements and advanced searching (when restricted to a single type of resource) can all be easily implemented as query parameters on top of the base URL. Let's look at these in more detail:
-    21. Filtering: Use a unique query parameter for each field that implements filtering. For example, when requesting a list of tickets from the /tickets endpoint, you may want to limit these to only those in the open state. This could be accomplished with a request like GET /tickets?state=open. Here, state is a query parameter that implements a filter.
-    22. Sorting: Similar to filtering, a generic parameter sort can be used to describe sorting rules. Accommodate complex sorting requirements by letting the sort parameter take in list of comma separated fields, each with a possible unary negative to imply descending sort order. Let's look at some examples:
+        Restructure the action to appear like a field of a resource. This works if the action doesn't take parameters.
+        For example an activate action could be mapped to a boolean activated field and updated via a PATCH to the resource.
+        Treat it like a sub-resource with RESTful principles. For example, GitHub's API lets you star a gist with
+        PUT /gists/:id/star and unstar with DELETE /gists/:id/star.
+        Sometimes you really have no way to map the action to a sensible RESTful structure. For example, a multi-resource search
+        doesn't really make sense to be applied to a specific resource's endpoint. In this case, /search would make the most sense
+        even though it isn't a resource. This is OK - just do what's right from the perspective of the API consumer and make sure
+        it's documented clearly to avoid confusion.
+    20. It's best to keep the base resource URLs as lean as possible. Complex result filters, sorting requirements and advanced
+    searching (when restricted to a single type of resource) can all be easily implemented as query parameters on top of the base URL.
+    Let's look at these in more detail:
+    21. Filtering: Use a unique query parameter for each field that implements filtering.
+    For example, when requesting a list of tickets from the /tickets endpoint, you may want to limit these to only those in the open state.
+     This could be accomplished with a request like GET /tickets?state=open. Here, state is a query parameter that implements a filter.
+    22. Sorting: Similar to filtering, a generic parameter sort can be used to describe sorting rules.
+    Accommodate complex sorting requirements by letting the sort parameter take in list of comma separated fields, each with a possible
+    unary negative to imply descending sort order. Let's look at some examples:
         GET /tickets?sort=-priority - Retrieves a list of tickets in descending order of priority
-        GET /tickets?sort=-priority,created_at - Retrieves a list of tickets in descending order of priority. Within a specific priority, older tickets are ordered first
-        Searching: Sometimes basic filters aren't enough and you need the power of full text search. Perhaps you're already using ElasticSearch or another Lucene based search technology. When full text search is used as a mechanism of retrieving resource instances for a specific type of resource, it can be exposed on the API as a query parameter on the resource's endpoint. Let's say q. Search queries should be passed straight to the search engine and API output should be in the same format as a normal list result.
+        GET /tickets?sort=-priority,created_at - Retrieves a list of tickets in descending order of priority. Within a specific priority,
+        older tickets are ordered first
+        Searching: Sometimes basic filters aren't enough and you need the power of full text search. Perhaps you're already using
+        ElasticSearch or another Lucene based search technology. When full text search is used as a mechanism of retrieving resource instances for
+        a specific type of resource, it can be exposed on the API as a query parameter on the resource's endpoint. Let's say q.
+        Search queries should be passed straight to the search engine and API output should be in the same format as a normal list result.
     23. Combining these together, we can build queries like:
 
         GET /tickets?sort=-updated_at - Retrieve recently updated tickets
         GET /tickets?state=closed&sort=-updated_at - Retrieve recently closed tickets
         GET /tickets?q=return&state=open&sort=-priority,created_at - Retrieve the highest priority open tickets mentioning the word 'return'
         Aliases for common queries
-    24. To make the API experience more pleasant for the average consumer, consider packaging up sets of conditions into easily accessible RESTful paths. For example, the recently closed tickets query above could be packaged up as GET /tickets/recently_closed
-    25. In REST, primary data representation is called Resource. Having a strong and consistent REST resource naming strategy – will prove one of the best design decisions in the long term.
+    24. To make the API experience more pleasant for the average consumer, consider packaging up sets of conditions into easily accessible RESTful paths.
+     For example, the recently closed tickets query above could be packaged up as GET /tickets/recently_closed
+    25. In REST, primary data representation is called Resource. Having a strong and consistent REST resource naming
+    strategy – will prove one of the best design decisions in the long term.
 
-        The key abstraction of information in REST is a resource. Any information that can be named can be a resource: a document or image, a temporal service (e.g. “today’s weather in Los Angeles”), a collection of other resources, a non-virtual object (e.g., a person), and so on. In other words, any concept that might be the target of an author’s hypertext reference must fit within the definition of a resource. A resource is a conceptual mapping to a set of entities, not the entity that corresponds to the mapping at any particular point in time.
+        The key abstraction of information in REST is a resource. Any information that can be named can be a resource:
+         a document or image, a temporal service (e.g. “today’s weather in Los Angeles”), a collection of other resources,
+         a non-virtual object (e.g., a person), and so on. In other words, any concept that might be the target of an author’s hypertext
+         reference must fit within the definition of a resource. A resource is a conceptual mapping to a set of entities, not the entity
+         that corresponds to the mapping at any particular point in time.
         Roy Fielding’s dissertation
     26. Depict Resource Hierarchy Through URI
-        If a resource contains sub-resources, make sure to depict this in the API to make it more explicit. For example, if a user has posts and we want to retrieve a specific post by user, API can be defined as GET /users/123/posts/1 which will retrieve Post with id 1 by user with id 123
+        If a resource contains sub-resources, make sure to depict this in the API to make it more explicit. For example,
+        if a user has posts and we want to retrieve a specific post by user, API can be defined as GET /users/123/posts/1 which will retrieve
+        Post with id 1 by user with id 123
     27. Filter, Search and Sort
-        Don’t create different URIs for fetching resources with filtering, searching, or sorting parameters. Try to keep the URI simple, and add query parameters to depict parameters or criteria to fetch a resource (single type of resource)
+        Don’t create different URIs for fetching resources with filtering, searching, or sorting parameters. Try to keep the URI simple,
+        and add query parameters to depict parameters or criteria to fetch a resource (single type of resource)
         Filtering:
-        Use query parameters defined in URL for filtering a resource from server. For example, if we would like to fetch all published posts by user you can design an API such as:
+        Use query parameters defined in URL for filtering a resource from server. For example, if we would like to fetch all published
+        posts by user you can design an API such as:
         GET /users/123/posts?state=published
         In the example above, state is the filter parameter
         Searching:
-        To get the results with powerful search queries instead of basic filters, one could use multiple parameters in a URI to request to fetch a resource from server.
+        To get the results with powerful search queries instead of basic filters, one could use multiple parameters in a
+        URI to request to fetch a resource from server.
         GET /users/123/posts?state=published&ta=scala
-        The above query searches for posts which are published with the Scala tag. It’s very common today for Solr to be used as search tool as it provides advanced capabilities to search for a document and you can design your API such as:
+        The above query searches for posts which are published with the Scala tag. It’s very common today for Solr to be used as
+        search tool as it provides advanced capabilities to search for a document and you can design your API such as:
         GET /users/123/posts?q=sometext&fq=state:published,ta:scala
         This will search posts for free text “sometext”(q) and filter results on fq state as published and having tag Scala.
         Sorting:
@@ -127,9 +181,13 @@
 
 5. Using HTTP status codes properly
     1. Updates & creation should return a resource representation
-       A PUT, POST or PATCH call may make modifications to fields of the underlying resource that weren't part of the provided parameters (for example: created_at or updated_at timestamps). To prevent an API consumer from having to hit the API again for an updated representation, have the API return the updated (or created) representation as part of the response.
-    2. In case of a POST that resulted in a creation, use a HTTP 201 status code and include a Location header that points to the URL of the new resource. Both of those in should be in addition to including the newly created resource representation as the body of the response.
-    3. HTTP defines a bunch of meaningful status codes that can be returned from your API. These can be leveraged to help the API consumers route their responses accordingly. I've curated a short list of the ones that you definitely should be using:
+       A PUT, POST or PATCH call may make modifications to fields of the underlying resource that weren't part of the provided parameters
+       (for example: created_at or updated_at timestamps). To prevent an API consumer from having to hit the API again for an updated representation,
+       have the API return the updated (or created) representation as part of the response.
+    2. In case of a POST that resulted in a creation, use a HTTP 201 status code and include a Location header that points to the URL of the new resource.
+     Both of those in should be in addition to including the newly created resource representation as the body of the response.
+    3. HTTP defines a bunch of meaningful status codes that can be returned from your API. These can be leveraged to help the API consumers route their
+    responses accordingly. I've curated a short list of the ones that you definitely should be using:
 
        200 OK - Response to a successful GET, PUT, PATCH or DELETE. Can also be used for a POST that doesn't result in a creation.
        201 Created - Response to a POST that results in a creation. Should be combined with a Location header pointing to the location of the new resource
@@ -167,8 +225,11 @@
 
 6. General information
     1. What is REST?
-       In 2000, Roy Fielding, one of the principal authors of the HTTP specification, proposed an architectural approach for designing web-services known as Representational State Transfer (REST).
-       Note that, while this article assumes REST implementation with HTTP protocol, REST is not tied to HTTP. REST API’s are implemented for a “resource” which could be an entity or service. These API’s provide way to identify a resource by its URI, which can be used to transfer a representation of a resource’s current state over HTTP.
+       In 2000, Roy Fielding, one of the principal authors of the HTTP specification,
+        proposed an architectural approach for designing web-services known as Representational State Transfer (REST).
+       Note that, while this article assumes REST implementation with HTTP protocol, REST is not tied to HTTP.
+       REST API’s are implemented for a “resource” which could be an entity or service.
+       These API’s provide way to identify a resource by its URI, which can be used to transfer a representation of a resource’s current state over HTTP.
     2. Don’t Misuse Safe Methods (Idempotency)
        Safe methods are HTTP methods which return the same resource representation irrespective of how many times are called by client. GET, HEAD, OPTIONS and TRACE methods are defined as safe, meaning they are only intended for retrieving data and should not change a state of a resource on a server. Don’t use GET to delete content, for example…
        GET /users/123/delete
@@ -178,5 +239,7 @@
     4. https://www.moesif.com/blog/api-guide/api-design-guidelines/
 
 7. Practices returning proper responses
-    1. POST, PUT or PATCH methods, used to create a resource or update fields in a resource, should always return updated resource representation as a response with appropriate status code as described in further points.
-       POST if successful to add new resource should return HTTP status code 201 along with URI of newly created resource in Location header (as per HTTP specification)
+    1. POST, PUT or PATCH methods, used to create a resource or update fields in a resource,
+    should always return updated resource representation as a response with appropriate status code as described in further points.
+       POST if successful to add new resource should return HTTP status code 201 along with
+       URI of newly created resource in Location header (as per HTTP specification)
